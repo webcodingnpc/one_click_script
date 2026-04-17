@@ -1,4 +1,4 @@
-# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all condition)
+﻿# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all condition)
 
 
 ## 目录 Table of Contents
@@ -41,29 +41,29 @@
 
 #### Usage 脚本使用方法
 ```bash
-bash <(curl -Lso- https://git.io/oneclick)
+bash <(curl -Lso- https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh)
 ```
 
 
 ####  通过 curl 命令安装  via curl to install script
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 #### 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 
 
-![功能列表](https://github.com/jinwyp/one_click_script/blob/master/docs/readme.png?raw=true)
+![功能列表](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme.png?raw=true)
 
-![功能列表2](https://github.com/jinwyp/one_click_script/blob/master/docs/readme2.png?raw=true)
+![功能列表2](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme2.png?raw=true)
 
-![功能列表3](https://github.com/jinwyp/one_click_script/blob/master/docs/readme3.png?raw=true)
+![功能列表3](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme3.png?raw=true)
 
 
 
@@ -71,13 +71,13 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 
 #### Usage 脚本使用方法
 ```bash
-bash <(curl -Lso- https://git.io/kernel.sh)
+bash <(curl -Lso- https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/install_kernel.sh)
 ```
 
 #### 通过 wget 命令安装 Linux 内核 和 Wireguard  via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
 ```
 
 
@@ -87,7 +87,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 #### 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
 ```
 
 
@@ -102,9 +102,9 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 5. 安装 trojan 或 v2ray. 根据提示 重新运行脚本 ```./trojan_v2ray_install.sh ```  选2 安装trojan, 或选5 安装trojan-go, 或选11或14 安装v2ray, 或选21 同时安装trojan和v2ray， 或选24 同时安装trojan-go和v2ray.  强烈建议：如果VPS线路速度可以保证，不需要CDN，强烈建议选11或14 只安装xray 或只安装5 trojan-go (trojan-go速度已经很快了). 需要CDN可以选11只安装V2ray.  协议安装的越多安全性越低,而且也不会提高速度,适合自己的软件装一种最好. 完全没有必要使用多合一的脚本同时安装多个协议
 
 6. 第一步安装 BBR plus 时出现的提示 "是否终止删除内核" 请选择 "NO". 就是要卸载掉目前的内核. 
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/debian.jpg?raw=true)
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/kernel.png?raw=true)
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/ubuntu.png?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/debian.jpg?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/kernel.png?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/ubuntu.png?raw=true)
 
 
 ### 安装管理面板 Install web admin panel
@@ -139,11 +139,11 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 1. 免费域名可以使用 [freenom](https://www.freenom.com/zh/index.html?lang=zh). 注册freenom时需要使用美国IP,否则无法通过注册邮件验证. 请自行搜索教程.
 2. 使用脚本安装时请先关闭CDN, cloudflare.com 中DNS设置页面, 二级域名设置为DNS only 为关闭CDN. 安装v2ray或trojan-go完毕后 可以开启CDN 设置为Proxied 即可. trojan目前不支持CDN, trojan-go 默认安装设置为不支持CDN,可以在安装过程中选择支持CDN.
 
-![注意 cloudflare CDN](https://github.com/jinwyp/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
+![注意 cloudflare CDN](https://github.com/webcodingnpc/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
 
 3. 如果使用v2ray 或 xray的 gRPC 通过cloudflare 转发, 需要在cloudflare 域名 "设置"中 => "网络" 菜单里面 允许gRPC，cloudflare Network => gRPC 
 
-![注意 cloudflare CDN gRPC](https://github.com/jinwyp/one_click_script/blob/master/docs/grpc.png?raw=true)
+![注意 cloudflare CDN gRPC](https://github.com/webcodingnpc/one_click_script/blob/master/docs/grpc.png?raw=true)
 
 4. 以下是Cloudflare CDN 的worker 加速脚本, 请把域名替换成自己的vps的域名. 然后在Cloudflare新建worker 添加即可. 可以通过下面3个工具任选其一, [CFIP][better-cloudflare-ip], [CloudflareScanner], [CloudflareSpeedTest],  在你自己的客户端机器上运行, 找出距离你最快的 cloudflare 的CDN IP, 在v2ray或trojan-go支持CDN的配置中填入该IP即可.
 ```
@@ -195,23 +195,23 @@ Let's Encrypt证书申请频率的限制
 #### via curl 安装命令 
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/linux_install_software.sh && chmod +x ./linux_install_software.sh && ./linux_install_software.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/linux_install_software.sh && chmod +x ./linux_install_software.sh && ./linux_install_software.sh
 
 ```
 
 #### via wget 安装命令 
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/linux_install_software.sh && chmod +x ./linux_install_software.sh && ./linux_install_software.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/linux_install_software.sh && chmod +x ./linux_install_software.sh && ./linux_install_software.sh
 
 ```
 
-![功能列表4](https://github.com/jinwyp/one_click_script/blob/master/docs/v2board1.png?raw=true)
+![功能列表4](https://github.com/webcodingnpc/one_click_script/blob/master/docs/v2board1.png?raw=true)
 
 
 
 ## Stargazers over time
-[![Stargazers over time](https://starchart.cc/jinwyp/one_click_script.svg)](https://starchart.cc/jinwyp/one_click_script)
+[![Stargazers over time](https://starchart.cc/webcodingnpc/one_click_script.svg)](https://starchart.cc/webcodingnpc/one_click_script)
 
 
 

@@ -94,12 +94,12 @@ function checkArchitecture(){
     # https://stackoverflow.com/questions/48678152/how-to-detect-386-amd64-arm-or-arm64-os-architecture-via-shell-bash
 
     case $(uname -m) in
-        i386)   osArchitecture="386" ;;
-        i686)   osArchitecture="386" ;;
-        x86_64) osArchitecture="amd64" ;;
-        arm)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-        aarch64)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-        * )     osArchitecture="arm" ;;
+        i386)    osArchitecture="386" ;;
+        i686)    osArchitecture="386" ;;
+        x86_64)  osArchitecture="amd64" ;;
+        arm)     osArchitecture="arm" ;;
+        aarch64) osArchitecture="arm64" ;;
+        * )      osArchitecture="arm64" ;;
     esac
 }
 
@@ -168,41 +168,62 @@ function getLinuxOSRelease(){
     if [[ -f /etc/redhat-release ]]; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /etc/issue | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /etc/issue | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
-    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat|almalinux|rocky"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /proc/version | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /proc/version | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     fi
 
     getLinuxOSVersion
+
+    # 从 /etc/os-release 读取 codename 后, 设置兜底值
+    if [[ "${osRelease}" == "debian" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            13) osReleaseVersionCodeName="trixie" ;;
+            12) osReleaseVersionCodeName="bookworm" ;;
+            11) osReleaseVersionCodeName="bullseye" ;;
+            10) osReleaseVersionCodeName="buster" ;;
+            *)  osReleaseVersionCodeName="bookworm" ;;
+        esac
+    fi
+
+    if [[ "${osRelease}" == "ubuntu" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            24) osReleaseVersionCodeName="noble" ;;
+            22) osReleaseVersionCodeName="jammy" ;;
+            20) osReleaseVersionCodeName="focal" ;;
+            18) osReleaseVersionCodeName="bionic" ;;
+            *)  osReleaseVersionCodeName="jammy" ;;
+        esac
+    fi
+
     checkArchitecture
     checkCPU
 
@@ -544,7 +565,10 @@ function setLinuxDateZone(){
         fi
 
     else
-        if [[ "${osReleaseVersionNoShort}" == "12" ]]; then
+        # Ubuntu 22+, Debian 12+: ntp 包已移除, 使用 systemd-timesyncd 或 chrony
+        if [[ "${osRelease}" == "debian" && ${osReleaseVersionNoShort} -ge 12 ]] || \
+           [[ "${osRelease}" == "ubuntu" && ${osReleaseVersionNoShort} -ge 22 ]]; then
+            systemctl enable systemd-timesyncd
             systemctl restart systemd-timesyncd
             timedatectl timesync-status
         else
@@ -642,19 +666,27 @@ function installPackage(){
 
     if [ "$osRelease" == "centos" ]; then
 
-        # rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        # 使用官方 nginx repo, 支持 CentOS 7/8/9, AlmaLinux, Rocky Linux
         rm -f /etc/yum.repos.d/nginx.repo
-        # cat > "/etc/yum.repos.d/nginx.repo" <<-EOF
-# [nginx]
-# name=nginx repo
-# baseurl=https://nginx.org/packages/centos/$osReleaseVersionNoShort/\$basearch/
-# gpgcheck=0
-# enabled=1
-# sslverify=0
-#
-# EOF
+        cat > "/etc/yum.repos.d/nginx.repo" <<-EOF
+[nginx-stable]
+name=nginx stable repo
+baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
 
-        PACKAGE_LIST=("zip" "unzip" "tar" "iputils" "htop" "redhat-lsb-core" "epel-release" "bind-utils" "net-tools" "xz" "jq" "iperf3" )
+[nginx-mainline]
+name=nginx mainline repo
+baseurl=http://nginx.org/packages/mainline/centos/\$releasever/\$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+EOF
+
+        PACKAGE_LIST=("zip" "unzip" "tar" "iputils" "htop" "epel-release" "bind-utils" "net-tools" "xz" "jq" "iperf3" )
 
         # 检查所有软件包是否已安装
         for package in "${PACKAGE_LIST[@]}"; do
@@ -666,84 +698,51 @@ function installPackage(){
             fi
         done
 
-        yum clean all
-
+        ${osSystemPackage} clean all
         ${osSystemPackage} update -y
-
-
-        # https://www.cyberciti.biz/faq/how-to-install-and-use-nginx-on-centos-8/
-        if  [[ ${osReleaseVersionNoShort} == "8" ]]; then
-            ${sudoCmd} yum module -y reset nginx
-            ${sudoCmd} yum module -y enable nginx:1.20
-            ${sudoCmd} yum module list nginx
-        fi
-
-        if  [[  ${osReleaseVersionNoShort} == "9" ]]; then
-            ${sudoCmd} yum module -y reset nginx
-            ${sudoCmd} yum module -y enable nginx:1.22
-            ${sudoCmd} yum module list nginx
-        fi
 
     elif [ "$osRelease" == "ubuntu" ]; then
 
-        # https://joshtronic.com/2018/12/17/how-to-install-the-latest-nginx-on-debian-and-ubuntu/
-        # https://www.nginx.com/resources/wiki/start/topics/tutorials/install/
-
-        $osSystemPackage install -y gnupg2 curl ca-certificates lsb-release ubuntu-keyring
-        # wget -O - https://nginx.org/keys/nginx_signing.key | ${sudoCmd} apt-key add -
-        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+        # https://nginx.org/en/linux_packages.html#Ubuntu
+        ${sudoCmd} ${osSystemPackage} install -y gnupg2 curl ca-certificates lsb-release ubuntu-keyring
+        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | ${sudoCmd} tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 
         rm -f /etc/apt/sources.list.d/nginx.list
-
         cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
-deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg]   https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
-# deb [arch=amd64] https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
-# deb-src https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
+deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/ubuntu/ ${osReleaseVersionCodeName} nginx
 EOF
 
-        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n"  | sudo tee /etc/apt/preferences.d/99-nginx
-
-        if [[ "${osReleaseVersionNoShort}" == "22" || "${osReleaseVersionNoShort}" == "21" ]]; then
-            echo
-        fi
-
-
+        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | ${sudoCmd} tee /etc/apt/preferences.d/99-nginx
 
         ${osSystemPackage} update -y
 
         if ! dpkg -l | grep -qw iperf3; then
             ${sudoCmd} ${osSystemPackage} install -y software-properties-common
             ${osSystemPackage} install -y curl wget git unzip zip tar htop
-            ${osSystemPackage} install -y xz-utils jq lsb-core lsb-release
+            ${osSystemPackage} install -y xz-utils jq lsb-release
             ${osSystemPackage} install -y iputils-ping
             ${osSystemPackage} install -y iperf3
             ${osSystemPackage} install -y cron
         fi
 
     elif [ "$osRelease" == "debian" ]; then
-        # ${sudoCmd} add-apt-repository ppa:nginx/stable -y
+        # https://nginx.org/en/linux_packages.html#Debian
         ${osSystemPackage} update -y
+        ${osSystemPackage} install -y gnupg2 curl ca-certificates lsb-release
 
-        ${osSystemPackage} install -y gnupg2
-        ${osSystemPackage} install -y curl ca-certificates lsb-release
-        wget https://nginx.org/keys/nginx_signing.key -O- | apt-key add -
+        # 使用 keyring 方式 (替代已废弃的 apt-key)
+        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | ${sudoCmd} tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 
         rm -f /etc/apt/sources.list.d/nginx.list
-        if [[ "${osReleaseVersionNoShort}" == "12" ]]; then
-            echo
-        else
-            cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
-deb https://nginx.org/packages/mainline/debian/ $osReleaseVersionCodeName nginx
-deb-src https://nginx.org/packages/mainline/debian $osReleaseVersionCodeName nginx
+        cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
+deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/debian/ ${osReleaseVersionCodeName} nginx
 EOF
-        fi
-
 
         ${osSystemPackage} update -y
 
         if ! dpkg -l | grep -qw iperf3; then
             ${osSystemPackage} install -y curl wget git unzip zip tar htop
-            ${osSystemPackage} install -y xz-utils jq lsb-core lsb-release
+            ${osSystemPackage} install -y xz-utils jq lsb-release
             ${osSystemPackage} install -y iputils-ping
             ${osSystemPackage} install -y iperf3
         fi
@@ -1114,7 +1113,7 @@ downloadFilenameTrojanGo="trojan-go-linux-amd64.zip"
 versionV2ray="5.21.0"
 downloadFilenameV2ray="v2ray-linux-64.zip"
 
-versionXray="1.8.7"
+versionXray="1.8.24"
 downloadFilenameXray="Xray-linux-64.zip"
 
 versionTrojanWeb="2.10.5"

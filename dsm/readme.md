@@ -1,18 +1,18 @@
-# PVE 和 群晖DSM NAS 安装工具, FRP 内网穿透工具 一键安装管理脚本
+﻿# PVE 和 群晖DSM NAS 安装工具, FRP 内网穿透工具 一键安装管理脚本
 
 ### 运行方法 Installation 
 
 #### linux系统下 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate -O /root/pve.sh https://raw.githubusercontent.com/jinwyp/one_click_script/master/dsm/pve.sh && chmod 700 /root/pve.sh && /root/pve.sh
+wget --no-check-certificate -O /root/pve.sh https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/dsm/pve.sh && chmod 700 /root/pve.sh && /root/pve.sh
 
 ```
 
 #### DSM 群晖系统下 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate -O /root/pve.sh /tmp https://raw.githubusercontent.com/jinwyp/one_click_script/master/dsm/pve.sh && chmod 700 /tmp/pve.sh && /tmp/pve.sh
+wget --no-check-certificate -O /root/pve.sh /tmp https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/dsm/pve.sh && chmod 700 /tmp/pve.sh && /tmp/pve.sh
 
 ```
 
@@ -25,8 +25,8 @@ wget --no-check-certificate -O /root/pve.sh /tmp https://raw.githubusercontent.c
 
 ### 功能介绍 Feature 
 
-![功能列表](https://github.com/jinwyp/one_click_script/blob/master/docs/pve1.png?raw=true)
+![功能列表](https://github.com/webcodingnpc/one_click_script/blob/master/docs/pve1.png?raw=true)
 
-![功能列表](https://github.com/jinwyp/one_click_script/blob/master/docs/pve2.png?raw=true)
+![功能列表](https://github.com/webcodingnpc/one_click_script/blob/master/docs/pve2.png?raw=true)
 
 

@@ -1,4 +1,4 @@
-# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all protocol)
+﻿# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all protocol)
 
 
 ## 目录 Table of Contents
@@ -37,31 +37,31 @@
 
 #### Usage 脚本使用方法
 ```bash
-bash <(curl -Lso- https://git.io/oneclick)
+bash <(curl -Lso- https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh)
 ```
 
 
 #### 通过 curl 命令安装  via curl to install script
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 #### 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 
 
-![功能列表](https://github.com/jinwyp/one_click_script/blob/master/docs/readme.png?raw=true)
+![功能列表](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme.png?raw=true)
 
-![功能列表2](https://github.com/jinwyp/one_click_script/blob/master/docs/readme2.png?raw=true)
+![功能列表2](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme2.png?raw=true)
 
-![功能列表3](https://github.com/jinwyp/one_click_script/blob/master/docs/netflix1.png?raw=true)
+![功能列表3](https://github.com/webcodingnpc/one_click_script/blob/master/docs/netflix1.png?raw=true)
 
-![功能列表4](https://github.com/jinwyp/one_click_script/blob/master/docs/readme3.png?raw=true)
+![功能列表4](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme3.png?raw=true)
 
 
 
@@ -71,7 +71,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 #### 通过 wget 命令安装 via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
 ```
 
 
@@ -84,7 +84,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 4. 三个月之后需要续期，本脚本通过cron任务自动完成续期，无需用户操作.
 
 
-![功能列表4](https://github.com/jinwyp/one_click_script/blob/master/docs/readme4.png?raw=true)
+![功能列表4](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme4.png?raw=true)
 
 #####  Let's Encrypt 申请证书有一些限制, 具体限制如下：
 
@@ -195,11 +195,11 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 
 4. 使用脚本安装时请先关闭CDN, cloudflare.com 中DNS设置页面, 二级域名设置为DNS only 为关闭CDN(即关闭黄色云朵). 安装v2ray或trojan-go完毕后 可以开启CDN 设置为Proxied 即可. trojan目前不支持CDN, trojan-go 支持CDN,可以在安装过程中选择支持CDN.
 
-![注意 cloudflare CDN](https://github.com/jinwyp/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
+![注意 cloudflare CDN](https://github.com/webcodingnpc/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
 
 5. 如果使用v2ray 或 xray的 gRPC 通过cloudflare 转发, 需要在cloudflare 域名 "设置"中 => "网络" 菜单里面 允许gRPC，cloudflare Network => gRPC 
 
-![注意 cloudflare CDN gRPC](https://github.com/jinwyp/one_click_script/blob/master/docs/grpc.png?raw=true)
+![注意 cloudflare CDN gRPC](https://github.com/webcodingnpc/one_click_script/blob/master/docs/grpc.png?raw=true)
 
 6. 以下是Cloudflare CDN 的worker 加速脚本, 请把域名替换成自己的vps的域名. 然后在Cloudflare新建worker 添加即可. 可以通过下面3个工具任选其一, [CFIP][better-cloudflare-ip], [CloudflareScanner], [CloudflareSpeedTest],  在你自己的客户端机器上运行, 找出距离你最快的 cloudflare 的CDN IP, 在v2ray或trojan-go支持CDN的配置中填入该IP即可.
 ```
@@ -230,7 +230,7 @@ addEventListener(
 
 
 ## Stargazers over time
-[![Stargazers over time](https://starchart.cc/jinwyp/one_click_script.svg)](https://starchart.cc/jinwyp/one_click_script)
+[![Stargazers over time](https://starchart.cc/webcodingnpc/one_click_script.svg)](https://starchart.cc/webcodingnpc/one_click_script)
 
 
 

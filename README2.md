@@ -1,8 +1,8 @@
-# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all condition)
+﻿# Easy install v2ray (xray) and trojan (trojan-go) script (ultimate script for all condition)
 
 ### [中文文档](/README2_CN.md) 
 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fjinwyp%2Fone_click_script&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fwebcodingnpc%2Fone_click_script&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 ## Sponsors
 Thanks for support this project. Check on [patreon](https://www.patreon.com/linuxkernel)
@@ -42,29 +42,29 @@ Thanks for support this project. Check on [patreon](https://www.patreon.com/linu
 
 #### via bash
 ```bash
-bash <(curl -Lso- https://git.io/oneclick)
+bash <(curl -Lso- https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh)
 ```
 
 
 ####  via curl to install script
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 #### via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/trojan_v2ray_install.sh && chmod +x ./trojan_v2ray_install.sh && ./trojan_v2ray_install.sh
 ```
 
 
 
-![功能列表](https://github.com/jinwyp/one_click_script/blob/master/docs/readme_en.png?raw=true)
+![功能列表](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme_en.png?raw=true)
 
-![功能列表2](https://github.com/jinwyp/one_click_script/blob/master/docs/readme2_en.png?raw=true)
+![功能列表2](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme2_en.png?raw=true)
 
-![功能列表3](https://github.com/jinwyp/one_click_script/blob/master/docs/readme3_en.png?raw=true)
+![功能列表3](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme3_en.png?raw=true)
 
 
 
@@ -75,7 +75,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 #### via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
 ```
 
 
@@ -87,7 +87,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 3. The script is using acme.sh to get SSL certificate. There are 4 providers: Let's Encrypt, BuyPass.com, ZeroSSL.com, Google. When you request too many times in one day and reach the limit of Let's Encrypt, you can switch other providers such as BuyPass.com.
 4. Normally SSL certificate need renew in three month，The script will autorenew the certificate with Cronjob by acme.sh .
 
-![功能列表4](https://github.com/jinwyp/one_click_script/blob/master/docs/readme4.png?raw=true)
+![功能列表4](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme4.png?raw=true)
 
 
 #####  [The Rate Limits rule of Let's Encrypt](https://letsencrypt.org/docs/rate-limits/)
@@ -183,11 +183,11 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 
 2. Please disable your CDN acceleration duiring the installation. Such as cloudflare.com. After finish v2ray or trojan-go installation. you can enable CDN acceleration. trojan not support CDN acceleration. 
 
-![注意 cloudflare CDN](https://github.com/jinwyp/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
+![注意 cloudflare CDN](https://github.com/webcodingnpc/one_click_script/blob/master/docs/cloudflare1.jpg?raw=true)
 
 3. Using v2ray or xray gRPC protocal for CDN acceleration, you need do some settings at cloudflare.com.  Click the "Network" on the leftside menu. Then enable gRPC on the right page. "Network => gRPC" 
 
-![注意 cloudflare CDN gRPC](https://github.com/jinwyp/one_click_script/blob/master/docs/grpc.png?raw=true)
+![注意 cloudflare CDN gRPC](https://github.com/webcodingnpc/one_click_script/blob/master/docs/grpc.png?raw=true)
 
 4. The Cloudflare CDN worker script, Please replace the domain name with your own domain name. 
 ```
@@ -218,7 +218,7 @@ addEventListener(
 
 
 ## Stargazers over time
-[![Stargazers over time](https://starchart.cc/jinwyp/one_click_script.svg)](https://starchart.cc/jinwyp/one_click_script)
+[![Stargazers over time](https://starchart.cc/webcodingnpc/one_click_script.svg)](https://starchart.cc/webcodingnpc/one_click_script)
 
 
 

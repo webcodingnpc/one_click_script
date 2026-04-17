@@ -1,4 +1,4 @@
-# Easy install latest or LTS linux kernel and enable BBR or BBR plus
+﻿# Easy install latest or LTS linux kernel and enable BBR or BBR plus
 
 ### [中文文档](/KERNEL_CN.md)
 ### [xray v2ray trojan shadowsocks install script](/README2.md)
@@ -31,24 +31,24 @@ Thanks for support this project. Check on [patreon](https://www.patreon.com/linu
 
 #### via bash
 ```bash
-bash <(curl -Lso- https://git.io/kernel.sh)
+bash <(curl -Lso- https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/install_kernel.sh)
 ```
 #### via curl to install script
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
 ```
 
 
 #### via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
 ```
 
 
 
-![功能列表3](https://github.com/jinwyp/one_click_script/blob/master/docs/readme3_en.png?raw=true)
+![功能列表3](https://github.com/webcodingnpc/one_click_script/blob/master/docs/readme3_en.png?raw=true)
 
 
 
@@ -64,9 +64,9 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 4. To enable BBR Plus. run script then choose 61 to install BBR Plus 4.14.129 kernel , or choose 66 to install BBR Plus 5.10 LTS kernel. It will reboot twice duiring the whole installation.  After finished new kernel installation, rerun the script then choose 3 to enable BBR Plus.
 5. Duiring the the whole installation when show the big warning screen(see below pics), please choose "NO" to continue installation. Do not abort kernel removal.
 
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/debian.jpg?raw=true)
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/kernel.png?raw=true)
-![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/ubuntu.png?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/debian.jpg?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/kernel.png?raw=true)
+![注意 安装BBR plus](https://github.com/webcodingnpc/one_click_script/blob/master/docs/ubuntu.png?raw=true)
 
 6. To install XanMod kernel and enable BBR2 on Debian or Ubuntu. Run script then choose 51 to install XanMod LTS 5.10 kernel, after reboot and finish kernel installation, rerun the script then choose 2 to enable BBR2 congestion control algorithm.
 
@@ -88,14 +88,14 @@ wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_s
 #### via wget to install script
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
+wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
 ```
 
 
 ####  via curl to install script
 
 ```bash
-curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
+curl -O https://raw.githubusercontent.com/webcodingnpc/one_click_script/master/netflix_check.sh && chmod +x ./netflix_check.sh && ./netflix_check.sh
 ```
 
 

@@ -95,12 +95,12 @@ function checkArchitecture(){
 	# https://stackoverflow.com/questions/48678152/how-to-detect-386-amd64-arm-or-arm64-os-architecture-via-shell-bash
 
 	case $(uname -m) in
-		i386)   osArchitecture="386" ;;
-		i686)   osArchitecture="386" ;;
-		x86_64) osArchitecture="amd64" ;;
-		arm)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-		aarch64)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-		* )     osArchitecture="arm" ;;
+		i386)    osArchitecture="386" ;;
+		i686)    osArchitecture="386" ;;
+		x86_64)  osArchitecture="amd64" ;;
+		arm)     osArchitecture="arm" ;;
+		aarch64) osArchitecture="arm64" ;;
+		* )      osArchitecture="arm64" ;;
 	esac
 }
 
@@ -169,41 +169,62 @@ function getLinuxOSRelease(){
     if [[ -f /etc/redhat-release ]]; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /etc/issue | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /etc/issue | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
-    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat|almalinux|rocky"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /proc/version | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /proc/version | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     fi
 
     getLinuxOSVersion
+
+    # 从 /etc/os-release 读取 codename 后, 设置兜底值
+    if [[ "${osRelease}" == "debian" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            13) osReleaseVersionCodeName="trixie" ;;
+            12) osReleaseVersionCodeName="bookworm" ;;
+            11) osReleaseVersionCodeName="bullseye" ;;
+            10) osReleaseVersionCodeName="buster" ;;
+            *)  osReleaseVersionCodeName="bookworm" ;;
+        esac
+    fi
+
+    if [[ "${osRelease}" == "ubuntu" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            24) osReleaseVersionCodeName="noble" ;;
+            22) osReleaseVersionCodeName="jammy" ;;
+            20) osReleaseVersionCodeName="focal" ;;
+            18) osReleaseVersionCodeName="bionic" ;;
+            *)  osReleaseVersionCodeName="jammy" ;;
+        esac
+    fi
+
     checkArchitecture
 	checkCPU
     virt_check

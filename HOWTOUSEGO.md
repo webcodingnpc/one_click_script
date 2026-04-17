@@ -1,4 +1,4 @@
-# How to use software by go language
+﻿# How to use software by go language
 
 
 
@@ -13,12 +13,12 @@
 
 1. 例子1 例如内网穿透软件FRP https://github.com/fatedier/frp
 打开github官方网页后首先找到右边 Releases 处, 可以看到当前最新版本是0.39.0
-![软件使用11](https://github.com/jinwyp/one_click_script/blob/master/docs/go1.png?raw=true)
+![软件使用11](https://github.com/webcodingnpc/one_click_script/blob/master/docs/go1.png?raw=true)
 
 
 2. 点击 Releases 进入已编译打包好的程序下载页面 https://github.com/fatedier/frp/releases
 
-![软件使用12](https://github.com/jinwyp/one_click_script/blob/master/docs/go2.png?raw=true)
+![软件使用12](https://github.com/webcodingnpc/one_click_script/blob/master/docs/go2.png?raw=true)
 
 3. 这里就要下载服务器端还是客户端软件. 如果要下载服务器端, 正常情况一般linux服务器都是x86架构的64位CPU, 需要下载 frp_0.39.0_linux_amd64.tar.gz. 就是要下载"amd64"字样的服务器端程序. 如果服务器是很老的32位CPU 需要下载 frp_0.39.0_linux_386.tar.gz. 就是要下载"386"字样的服务器端. 如果服务器是使用ARM的CPU,同样需要区分是64位的ARM还是32位的ARM CPU. 64位的ARM对应下载frp_0.39.0_linux_arm64.tar.gz, 32位的ARM CPU 对应下载frp_0.39.0_linux_arm.tar.gz.
 
@@ -30,14 +30,14 @@
 
 1. 例子2 V2ray https://github.com/v2fly/v2ray-core
 打开github官方网页后首先找到右边 Releases 处, 可以看到当前最新版本是4.44.0
-![软件使用11](https://github.com/jinwyp/one_click_script/blob/master/docs/gov1.png?raw=true)
+![软件使用11](https://github.com/webcodingnpc/one_click_script/blob/master/docs/gov1.png?raw=true)
 
 
 2. 点击 Releases 进入已编译打包好的程序下载页面 https://github.com/v2fly/v2ray-core/releases 由于目前v2ray 5.0版本是开发者预览版本还不稳定, 把页面向下翻找到4.44.0版本
 
-![软件使用12](https://github.com/jinwyp/one_click_script/blob/master/docs/gov2.png?raw=true)
+![软件使用12](https://github.com/webcodingnpc/one_click_script/blob/master/docs/gov2.png?raw=true)
 
-![软件使用13](https://github.com/jinwyp/one_click_script/blob/master/docs/gov3.png?raw=true)
+![软件使用13](https://github.com/webcodingnpc/one_click_script/blob/master/docs/gov3.png?raw=true)
 
 
 3. 这里就要下载服务器端还是客户端软件. 如果要下载服务器端, 正常情况一般linux服务器都是x86架构的64位CPU, 需要下载 v2ray-linux-64.zip. 就是要下载"64"字样的服务器端程序. 如果服务器是很老的32位CPU 需要下载 v2ray-linux-32.zip. 就是要下载"32"字样的服务器端. 如果服务器是使用ARM的CPU,同样需要区分是64位的ARM还是32位的ARM CPU. 64位的ARM对应下载v2ray-linux-arm64-v8a.zip, 32位的ARM CPU 对应下载v2ray-linux-arm32-v7a.zip 或 v2ray-linux-arm32-v6.zip.
@@ -57,14 +57,14 @@
 
 3. 这里先说仅仅是v2ray的UI界面程序. 例如 windows平台 v2rayN 根据上面介绍进入v2rayN项目的下载Releases 页面 https://github.com/2dust/v2rayN/releases 当前版本4.29
 
-![软件使用15](https://github.com/jinwyp/one_click_script/blob/master/docs/gov5.png?raw=true)
+![软件使用15](https://github.com/webcodingnpc/one_click_script/blob/master/docs/gov5.png?raw=true)
 
 4. 由于 v2rayN只针对 windows 平台 所以不需要区分平台版本, 下载 v2rayN-Core.zip 带v2ray命令行核心文件. 或下载 v2rayN.zip 只有界面程序需要手动下载 [v2ray命令行程序](https://github.com/v2fly/v2ray-core/releases)
 
 5. 这种界面程序与核心程序分开的好处就是 如果核心命令行有新功能升级了, 可以单独升级命令行核心程序. 在v2rayN可以点击 检查更新 升级v2ray-core或xray-core. 这里简单说明一下 v2ray-core和xray-core的区别. xray-core基本与v2ray-core相同, 但xray-core 多支持一种XTLS加密方式, XTLS速度快,但需要服务器端开启. 具体详细请看[xray官方文档](https://xtls.github.io/). 如果需要使用XTLS加密, 需要在v2rayN中参数设置-> v2rayN 设置 -> Core类型设置 使用xray-core.
 
 
-![软件使用15](https://github.com/jinwyp/one_click_script/blob/master/docs/gov6.png?raw=true)
+![软件使用15](https://github.com/webcodingnpc/one_click_script/blob/master/docs/gov6.png?raw=true)
 
 6. windows 平台下的v2ray的UI界面程序 还有WinXray  [官方地址](https://github.com/TheMRLL/WinXray/releases)
 

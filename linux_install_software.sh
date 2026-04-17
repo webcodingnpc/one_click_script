@@ -101,12 +101,12 @@ function checkArchitecture(){
 	# https://stackoverflow.com/questions/48678152/how-to-detect-386-amd64-arm-or-arm64-os-architecture-via-shell-bash
 
 	case $(uname -m) in
-		i386)   osArchitecture="386" ;;
-		i686)   osArchitecture="386" ;;
-		x86_64) osArchitecture="amd64" ;;
-		arm)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-		aarch64)    dpkg --print-architecture | grep -q "arm64" && osArchitecture="arm64" || osArchitecture="arm" ;;
-		* )     osArchitecture="arm" ;;
+		i386)    osArchitecture="386" ;;
+		i686)    osArchitecture="386" ;;
+		x86_64)  osArchitecture="amd64" ;;
+		arm)     osArchitecture="arm" ;;
+		aarch64) osArchitecture="arm64" ;;
+		* )      osArchitecture="arm64" ;;
 	esac
 }
 
@@ -173,41 +173,62 @@ function getLinuxOSRelease(){
     if [[ -f /etc/redhat-release ]]; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /etc/issue | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /etc/issue | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
-    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat|almalinux|rocky"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     elif cat /proc/version | grep -Eqi "debian|raspbian"; then
         osRelease="debian"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="buster"
     elif cat /proc/version | grep -Eqi "ubuntu"; then
         osRelease="ubuntu"
         osSystemPackage="apt-get"
         osSystemMdPath="/lib/systemd/system/"
-        osReleaseVersionCodeName="bionic"
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         osRelease="centos"
         osSystemPackage="yum"
+        command -v dnf &>/dev/null && osSystemPackage="dnf"
         osSystemMdPath="/usr/lib/systemd/system/"
         osReleaseVersionCodeName=""
     fi
 
     getLinuxOSVersion
+
+    # 从 /etc/os-release 读取 codename 后, 设置兜底值
+    if [[ "${osRelease}" == "debian" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            13) osReleaseVersionCodeName="trixie" ;;
+            12) osReleaseVersionCodeName="bookworm" ;;
+            11) osReleaseVersionCodeName="bullseye" ;;
+            10) osReleaseVersionCodeName="buster" ;;
+            *)  osReleaseVersionCodeName="bookworm" ;;
+        esac
+    fi
+
+    if [[ "${osRelease}" == "ubuntu" && ( -z "${osReleaseVersionCodeName}" || "${osReleaseVersionCodeName}" == "CodeName" ) ]]; then
+        case ${osReleaseVersionNoShort} in
+            24) osReleaseVersionCodeName="noble" ;;
+            22) osReleaseVersionCodeName="jammy" ;;
+            20) osReleaseVersionCodeName="focal" ;;
+            18) osReleaseVersionCodeName="bionic" ;;
+            *)  osReleaseVersionCodeName="jammy" ;;
+        esac
+    fi
+
     checkArchitecture
 	checkCPU
 
@@ -487,7 +508,10 @@ function setLinuxDateZone(){
         fi
 
     else
-        if [[ "${osReleaseVersionNoShort}" == "12" ]]; then
+        # Ubuntu 22+, Debian 12+: ntp 包已移除, 使用 systemd-timesyncd 或 chrony
+        if [[ "${osRelease}" == "debian" && ${osReleaseVersionNoShort} -ge 12 ]] || \
+           [[ "${osRelease}" == "ubuntu" && ${osReleaseVersionNoShort} -ge 22 ]]; then
+            systemctl enable systemd-timesyncd
             systemctl restart systemd-timesyncd
             timedatectl timesync-status
         else
@@ -591,89 +615,73 @@ function installPackage(){
 
     if [ "$osRelease" == "centos" ]; then
 
-        # rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        # 使用官方 nginx repo, 支持 CentOS 7/8/9, AlmaLinux, Rocky Linux
         rm -f /etc/yum.repos.d/nginx.repo
-        # cat > "/etc/yum.repos.d/nginx.repo" <<-EOF
-# [nginx]
-# name=nginx repo
-# baseurl=https://nginx.org/packages/centos/$osReleaseVersionNoShort/\$basearch/
-# gpgcheck=0
-# enabled=1
-# sslverify=0
-#
-# EOF
+        cat > "/etc/yum.repos.d/nginx.repo" <<-EOF
+[nginx-stable]
+name=nginx stable repo
+baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+
+[nginx-mainline]
+name=nginx mainline repo
+baseurl=http://nginx.org/packages/mainline/centos/\$releasever/\$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+EOF
 
         if ! rpm -qa | grep -qw iperf3; then
 			${sudoCmd} ${osSystemPackage} install -y epel-release
 
             ${osSystemPackage} install -y curl wget git unzip zip tar bind-utils htop net-tools
-            ${osSystemPackage} install -y xz jq redhat-lsb-core
+            ${osSystemPackage} install -y xz jq
             ${osSystemPackage} install -y iputils
             ${osSystemPackage} install -y iperf3
 		fi
 
         ${osSystemPackage} update -y
 
-
-        # https://www.cyberciti.biz/faq/how-to-install-and-use-nginx-on-centos-8/
-        if  [[ ${osReleaseVersionNoShort} == "8" || ${osReleaseVersionNoShort} == "9" ]]; then
-            ${sudoCmd} yum module -y reset nginx
-            ${sudoCmd} yum module -y enable nginx:1.20
-            ${sudoCmd} yum module list nginx
-        fi
-
     elif [ "$osRelease" == "ubuntu" ]; then
 
-        # https://joshtronic.com/2018/12/17/how-to-install-the-latest-nginx-on-debian-and-ubuntu/
-        # https://www.nginx.com/resources/wiki/start/topics/tutorials/install/
-
-        $osSystemPackage install -y gnupg2 curl ca-certificates lsb-release ubuntu-keyring
-        # wget -O - https://nginx.org/keys/nginx_signing.key | ${sudoCmd} apt-key add -
-        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+        # https://nginx.org/en/linux_packages.html#Ubuntu
+        ${sudoCmd} ${osSystemPackage} install -y gnupg2 curl ca-certificates lsb-release ubuntu-keyring
+        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | ${sudoCmd} tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 
         rm -f /etc/apt/sources.list.d/nginx.list
-
         cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
-deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg]   https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
-# deb [arch=amd64] https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
-# deb-src https://nginx.org/packages/ubuntu/ $osReleaseVersionCodeName nginx
+deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/ubuntu/ ${osReleaseVersionCodeName} nginx
 EOF
 
-        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n"  | sudo tee /etc/apt/preferences.d/99-nginx
-
-        if [[ "${osReleaseVersionNoShort}" == "22" || "${osReleaseVersionNoShort}" == "21" ]]; then
-            echo
-        fi
-
-
+        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | ${sudoCmd} tee /etc/apt/preferences.d/99-nginx
 
         ${osSystemPackage} update -y
 
         if ! dpkg -l | grep -qw iperf3; then
             ${sudoCmd} ${osSystemPackage} install -y software-properties-common
             ${osSystemPackage} install -y curl wget git unzip zip tar htop
-            ${osSystemPackage} install -y xz-utils jq lsb-core lsb-release
+            ${osSystemPackage} install -y xz-utils jq lsb-release
             ${osSystemPackage} install -y iputils-ping
             ${osSystemPackage} install -y iperf3
 		fi
 
     elif [ "$osRelease" == "debian" ]; then
-        # ${sudoCmd} add-apt-repository ppa:nginx/stable -y
+        # https://nginx.org/en/linux_packages.html#Debian
         ${osSystemPackage} update -y
+        ${osSystemPackage} install -y gnupg2 curl ca-certificates lsb-release
 
-        apt install -y gnupg2
-        apt install -y curl ca-certificates lsb-release
-        wget https://nginx.org/keys/nginx_signing.key -O- | apt-key add -
+        # 使用 keyring 方式 (替代已废弃的 apt-key)
+        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | ${sudoCmd} tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 
         rm -f /etc/apt/sources.list.d/nginx.list
-        if [[ "${osReleaseVersionNoShort}" == "12" ]]; then
-            echo
-        else
-            cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
-deb https://nginx.org/packages/mainline/debian/ $osReleaseVersionCodeName nginx
-deb-src https://nginx.org/packages/mainline/debian $osReleaseVersionCodeName nginx
+        cat > "/etc/apt/sources.list.d/nginx.list" <<-EOF
+deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/debian/ ${osReleaseVersionCodeName} nginx
 EOF
-        fi
+
 
 
         ${osSystemPackage} update -y
@@ -910,26 +918,33 @@ function installNodejs(){
 
     if [ "$osRelease" == "centos" ] ; then
 
-        if [ "$osReleaseVersion" == "7" ]; then
-            curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+        if [ "$osReleaseVersionNoShort" == "7" ]; then
+            curl -sL https://rpm.nodesource.com/setup_20.x | sudo bash -
             ${sudoCmd} yum install -y nodejs
         else
             ${sudoCmd} dnf module list nodejs
-            ${sudoCmd} dnf module switch-to nodejs:16 -y
-            ${sudoCmd} dnf module enable nodejs:16 -y
+            ${sudoCmd} dnf module reset nodejs -y
+            ${sudoCmd} dnf module enable nodejs:22 -y
             ${sudoCmd} dnf module list nodejs
             ${sudoCmd} dnf install -y nodejs
         fi
 
     else
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-        echo 'export NVM_DIR="$HOME/.nvm"' >> ${HOME}/.zshrc
-        echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${HOME}/.zshrc
-        source ${HOME}/.zshrc
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+        if [[ -f "${HOME}/.zshrc" ]]; then
+            echo 'export NVM_DIR="$HOME/.nvm"' >> ${HOME}/.zshrc
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${HOME}/.zshrc
+        fi
+        if [[ -f "${HOME}/.bashrc" ]]; then
+            echo 'export NVM_DIR="$HOME/.nvm"' >> ${HOME}/.bashrc
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${HOME}/.bashrc
+        fi
 
         command -v nvm
         nvm --version
-        nvm ls-remote
         nvm install --lts
 
     fi
@@ -976,24 +991,39 @@ function installDocker(){
             ${sudoCmd} dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
         elif [[ "$osRelease" == "debian" ]]; then
-            for pkg in docker.io docker-doc docker-compose podman-docker containerd runc;
-            do
-                ${sudoCmd} apt-get remove $pkg;
+            for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
+                ${sudoCmd} apt-get remove -y $pkg
             done
 
             ${sudoCmd} apt-get update
             ${sudoCmd} apt-get install -y ca-certificates curl gnupg
             ${sudoCmd} install -m 0755 -d /etc/apt/keyrings
-            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            curl -fsSL https://download.docker.com/linux/debian/gpg | ${sudoCmd} gpg --dearmor -o /etc/apt/keyrings/docker.gpg
             ${sudoCmd} chmod a+r /etc/apt/keyrings/docker.gpg
 
-            echo \
-            "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-            ${osReleaseVersionCodeName} stable" | \
-            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${osReleaseVersionCodeName} stable" | \
+            ${sudoCmd} tee /etc/apt/sources.list.d/docker.list > /dev/null
 
             ${sudoCmd} apt-get update
             ${sudoCmd} apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+        elif [[ "$osRelease" == "ubuntu" ]]; then
+            for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
+                ${sudoCmd} apt-get remove -y $pkg
+            done
+
+            ${sudoCmd} apt-get update
+            ${sudoCmd} apt-get install -y ca-certificates curl
+            ${sudoCmd} install -m 0755 -d /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | ${sudoCmd} gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            ${sudoCmd} chmod a+r /etc/apt/keyrings/docker.gpg
+
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${osReleaseVersionCodeName} stable" | \
+            ${sudoCmd} tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+            ${sudoCmd} apt-get update
+            ${sudoCmd} apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
         else
             curl -fsSL https://get.docker.com -o ${configDockerDownloadPath}/get-docker.sh
             # curl -sSL https://get.daocloud.io/docker -o ${configDockerDownloadPath}/get-docker.sh
@@ -1001,7 +1031,6 @@ function installDocker(){
             ${configDockerDownloadPath}/get-docker.sh
 
         fi
-        ${sudoCmd}
         ${sudoCmd} systemctl start docker.service
         ${sudoCmd} systemctl enable docker.service
         ${sudoCmd} systemctl restart docker.service
@@ -1018,9 +1047,7 @@ function installDocker(){
 
         versionDockerCompose=$(getGithubLatestReleaseVersion "docker/compose")
 
-        # dockerComposeUrl="https://github.com/docker/compose/releases/download/v${versionDockerCompose}/docker-compose-$(uname -s)-$(uname -m)"
-        dockerComposeUrl="https://github.com/docker/compose/releases/download/v${versionDockerCompose}/docker-compose-linux-x86_64"
-        #dockerComposeUrl="https://get.daocloud.io/docker/compose/releases/download/v${versionDockerCompose}/docker-compose-linux-x86_64"
+        dockerComposeUrl="https://github.com/docker/compose/releases/download/v${versionDockerCompose}/docker-compose-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
 
         showInfoGreen "Downloading  ${dockerComposeUrl}"
 
@@ -1175,8 +1202,13 @@ function installSemaphore(){
     mkdir -p ${configSemaphoreDockerPath}
     mkdir -p ${configSemaphoreSystemPath}
 
-    # semaphoreVersion=$(getGithubLatestReleaseVersion "semaphoreui/semaphore")
-    semaphoreVersion="2.9.64"
+    # 动态获取最新版本
+    semaphoreVersion=$(getGithubLatestReleaseVersion "semaphoreui/semaphore")
+    [[ -z "${semaphoreVersion}" ]] && semaphoreVersion="2.10.22"
+
+    # 根据架构选择下载文件
+    semaphoreArch="amd64"
+    [[ "${coreArch}" == "arm64" ]] && semaphoreArch="arm64"
 
 
     if [[ $isSemaphoreInstallInput == [Yy] ]]; then
@@ -1254,15 +1286,15 @@ EOF
 
         if [ "$osRelease" == "centos" ] ; then
             # https://github.com/semaphoreui/semaphore/releases/download/v2.9.68-beta/semaphore_2.9.68-beta_linux_amd64.rpm
-            semaphoreDownloadUrl="https://github.com/semaphoreui/semaphore/releases/download/v${semaphoreVersion}/semaphore_${semaphoreVersion}_linux_amd64.rpm"
+            semaphoreDownloadUrl="https://github.com/semaphoreui/semaphore/releases/download/v${semaphoreVersion}/semaphore_${semaphoreVersion}_linux_${semaphoreArch}.rpm"
             wget "${semaphoreDownloadUrl}"
 
-            ${sudoCmd} yum install semaphore_${semaphoreVersion}_linux_amd64.rpm
+            ${sudoCmd} yum install semaphore_${semaphoreVersion}_linux_${semaphoreArch}.rpm
 
         elif [ "$osRelease" == "ubuntu" ] || [ "$osRelease" == "debian" ]; then
-            semaphoreDownloadUrl="https://github.com/semaphoreui/semaphore/releases/download/v${semaphoreVersion}/semaphore_${semaphoreVersion}_linux_amd64.deb"
+            semaphoreDownloadUrl="https://github.com/semaphoreui/semaphore/releases/download/v${semaphoreVersion}/semaphore_${semaphoreVersion}_linux_${semaphoreArch}.deb"
             wget "${semaphoreDownloadUrl}"
-            ${sudoCmd} dpkg -i semaphore_${semaphoreVersion}_linux_amd64.deb
+            ${sudoCmd} dpkg -i semaphore_${semaphoreVersion}_linux_${semaphoreArch}.deb
         fi
 
 
