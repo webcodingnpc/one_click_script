@@ -1012,6 +1012,65 @@ function installBBR2(){
 }
 
 
+function checkAndEnableBBRAuto(){
+    # 检测当前拥塞控制算法
+    local net_congestion_control
+    net_congestion_control=$(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F "=" '{print $2}' | awk '{$1=$1;print}')
+
+    if [[ -z "${net_congestion_control}" ]]; then
+        yellow " 无法检测当前拥塞控制算法，跳过 BBR 自动检测"
+        return
+    fi
+
+    if [[ "${net_congestion_control}" == "bbr" || "${net_congestion_control}" == "bbrplus" ]]; then
+        green " 检测到 BBR 加速已启用 (当前算法: ${net_congestion_control})，跳过"
+        return
+    fi
+
+    # 检测内核版本是否支持 BBR（需 >= 4.9）
+    local kernel_version
+    kernel_version=$(uname -r | cut -d- -f1)
+    local kernel_major
+    kernel_major=$(echo "${kernel_version}" | cut -d. -f1)
+    local kernel_minor
+    kernel_minor=$(echo "${kernel_version}" | cut -d. -f2)
+
+    if [[ ${kernel_major} -ge 5 ]] || [[ ${kernel_major} -eq 4 && ${kernel_minor} -ge 9 ]]; then
+        echo
+        green " =================================================="
+        green " 内核版本 ${kernel_version} 支持 BBR，正在自动开启 BBR 加速..."
+        green " =================================================="
+        echo
+
+        # 写入 sysctl 配置
+        if ! grep -q "net.core.default_qdisc" /etc/sysctl.conf 2>/dev/null; then
+            echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+        fi
+        if ! grep -q "net.ipv4.tcp_congestion_control" /etc/sysctl.conf 2>/dev/null; then
+            echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+        fi
+
+        sysctl -p 2>/dev/null
+
+        net_congestion_control=$(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F "=" '{print $2}' | awk '{$1=$1;print}')
+        green " BBR 加速已开启！当前拥塞控制算法: ${net_congestion_control}"
+    else
+        echo
+        yellow " =================================================="
+        yellow " 当前内核版本 ${kernel_version} 不支持 BBR（需 >= 4.9）"
+        yellow " 建议先选择菜单 1 安装新版 Linux 内核后再继续"
+        yellow " =================================================="
+        echo
+        red " 是否继续安装？（不开启 BBR 可能会影响网络性能）"
+        read -r -p " 直接回车继续安装, 输入 N 返回菜单:" isContinueInput
+        isContinueInput=${isContinueInput:-Y}
+        if [[ "${isContinueInput}" != [Yy] ]]; then
+            exit
+        fi
+    fi
+}
+
+
 function installSWAP(){
     bash <(wget --no-check-certificate -qO- 'https://www.moerats.com/usr/shell/swap.sh')
 }
@@ -2644,6 +2703,9 @@ function inputXraySystemdServiceName(){
 
 function installTrojanV2rayWithNginx(){
 
+    # 自动检测并开启 BBR 加速（无论安装哪个选项）
+    checkAndEnableBBRAuto
+
     stopServiceNginx
     testLinuxPortUsage
     # installPackage
@@ -2787,6 +2849,8 @@ function installTrojanV2rayWithNginx(){
         if [ "$1" == "trojan_nginx" ]; then
             installWebServerNginx
             installTrojanServer
+            # 自动安装 Trojan-web 可视化管理面板
+            installTrojanWebAuto
 
         elif [ "$1" = "trojan" ]; then
             installTrojanServer
@@ -7702,6 +7766,136 @@ EOF
         exit
     fi
 }
+
+function installTrojanWebAuto(){
+    # 自动安装 Trojan-web 面板（无交互版，复用已有域名和 nginx）
+    if [ -f "${configTrojanWebPath}/trojan-web" ] ; then
+        green " =================================================="
+        green "  Trojan-web 可视化管理面板已安装，跳过！"
+        green " =================================================="
+        return
+    fi
+
+    if [ -z "${configSSLDomain}" ]; then
+        red " =================================================="
+        red " 未检测到域名配置，无法安装 Trojan-web 面板"
+        red " =================================================="
+        return
+    fi
+
+    echo
+    green " =================================================="
+    green " 正在自动安装 Trojan-web 可视化管理面板..."
+    green " =================================================="
+    echo
+
+    # 获取最新版本号
+    getV2rayVersion "trojan-web"
+
+    # 创建目录并下载二进制文件
+    mkdir -p ${configTrojanWebPath}
+    downloadTrojanWebBin
+    chmod +x ${configTrojanWebPath}/trojan-web
+
+    # 生成随机端口和路径（如未设置）
+    configTrojanWebNginxPath=$(cat /dev/urandom | head -1 | md5sum | head -c 5)
+    configTrojanWebPort="$(($RANDOM + 10000))"
+
+    # 创建 systemd 服务
+    cat > ${osSystemMdPath}trojan-web.service <<-EOF
+[Unit]
+Description=trojan-web
+Documentation=https://github.com/Jrohy/trojan
+After=network.target network-online.target nss-lookup.target mysql.service mariadb.service mysqld.service docker.service
+
+[Service]
+Type=simple
+StandardError=journal
+ExecStart=${configTrojanWebPath}/trojan-web web -p ${configTrojanWebPort}
+ExecReload=/bin/kill -HUP \$MAINPID
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    ${sudoCmd} systemctl daemon-reload
+    ${sudoCmd} systemctl enable trojan-web.service
+    ${sudoCmd} systemctl start trojan-web.service
+
+    # 添加 nginx 反向代理配置（单独文件，不影响主配置）
+    cat > "${nginxConfigSiteConfPath}/trojanweb_site.conf" <<-EOF
+server {
+    listen       80;
+    server_name  ${configSSLDomain};
+    root ${configWebsitePath};
+    index index.php index.html index.htm;
+
+    location /${configTrojanWebNginxPath} {
+        proxy_pass http://127.0.0.1:${configTrojanWebPort}/;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Host \$http_host;
+    }
+
+    location ~* ^/(static|common|auth|trojan)/ {
+        proxy_pass  http://127.0.0.1:${configTrojanWebPort};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$http_host;
+    }
+
+    # http redirect to https
+    if ( \$remote_addr != 127.0.0.1 ){
+        rewrite ^/(.*)$ https://${configSSLDomain}/\$1 redirect;
+    }
+}
+EOF
+
+    # 重启 nginx 使配置生效
+    ${sudoCmd} systemctl restart nginx.service
+    ${sudoCmd} systemctl restart trojan-web.service
+
+    echo
+    green " =================================================="
+    green "  Trojan-web 可视化管理面板安装成功！"
+    green "  版本: ${versionTrojanWeb}"
+    green " =================================================="
+    echo
+    yellow "  ╔══════════════════════════════════════════════╗"
+    yellow "  ║  管理面板访问地址                            ║"
+    yellow "  ║                                              ║"
+    yellow "  ║  https://${configSSLDomain}/${configTrojanWebNginxPath}  ║"
+    yellow "  ║                                              ║"
+    yellow "  ╚══════════════════════════════════════════════╝"
+    echo
+    green "  ═══ 首次初始化配置步骤 ═══"
+    echo
+    green "  SSH 登录 VPS 后，依次执行以下操作："
+    echo
+    green "  步骤1：运行初始化命令"
+    green "  └── ${configTrojanWebPath}/trojan-web"
+    echo
+    green "  步骤2：选择 \"1. Let's Encrypt\" 申请 SSL 证书"
+    echo
+    green "  步骤3：选择 \"1. 安装 Docker 版 MySQL(MariaDB)\""
+    echo
+    green "  步骤4：输入第一个 Trojan 用户的账号密码"
+    echo
+    green "  步骤5：看到 '欢迎使用trojan管理程序' 后，直接按回车继续"
+    echo
+    green "  步骤6：完成后浏览器打开上面的管理面板地址即可登录管理"
+    echo
+    green "  ═══ 常用管理命令 ═══"
+    green "  启动面板:   systemctl start trojan-web.service"
+    green "  停止面板:   systemctl stop trojan-web.service"
+    green "  重启面板:   systemctl restart trojan-web.service"
+    green "  查看状态:   systemctl status trojan-web.service"
+    green "  可执行文件: ${configTrojanWebPath}/trojan-web"
+    echo
+}
+
 
 function upgradeTrojanWeb(){
     getV2rayVersion "trojan-web"
