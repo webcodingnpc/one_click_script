@@ -3,35 +3,32 @@
 #
 # Install linux kernel for TCP BBR and BBR Plus
 #
-# Copyright (C) 2021-2023 JinWYP
+# Copyright (C) 2021-2026 JinWYP
 #
 
 
 # 4.4 LTS 4.9 LTS 4.14 LTS 4.19 LTS
-# 5.4 LTS 5.10 LTS
-
-
-# 4.x版本内核最新的longterm版本是4.19.113,安装的话只能找个4.19的rpm包来安装了
+# 5.4 LTS 5.10 LTS 5.15 LTS 6.1 LTS 6.6 LTS
 
 # 从 Linux 4.9 版本开始，TCP BBR 就已经成为了 Linux 系统内核的一部分。因此，开启 BBR 的首要前提就是当前系统内核版本大于等于 4.9
 
 # Linux 内核 5.6 正式发布了，内置了 wireguard module
 # Linux 5.6 引入 FQ-PIE 数据包调度程序以帮助应对 Bufferbloat
 # 5.5内核支持cake队列
-# 自来光大佬： xamod内核5.8默认队列算法已经改为 fq_pie 之前是cake
-
+# XanMod 内核默认队列算法已改为 fq_pie
 
 # centos8 安装完成默认内核  kernel-core-4.18.0-240.15.1.el8_3.x86_64, kernel-modules-4.18.0-240.15.1.el8_3.x86_64
 # ubuntu16 安装完成默认内核  linux-generic 4.4.0.210, linux-headers-4.4.0-210
 # ubuntu18 安装完成默认内核  linux-generic 4.15.0.140, linux-headers-4.15.0-140
 # ubuntu20 安装完成默认内核  linux-image-5.4.0-70-generic , linux-headers-5.4.0-70
+# ubuntu22 安装完成默认内核  linux-image-5.15.0-7x-generic
+# ubuntu24 安装完成默认内核  linux-image-6.8.0-xx-generic
 # debian10 安装完成默认内核  4.19.0-16-amd64
 # debian11 安装完成默认内核  linux-image-5.10.0-8-amd64
+# debian12 安装完成默认内核  linux-image-6.1.0-xx-amd64
 
-# UJX6N 编译的bbr plus 内核  5.10.27-bbrplus    5.9.16    5.4.86
-# UJX6N 编译的bbr plus 内核  4.19.164   4.14.213    4.9.264-1.bbrplus
-# https://github.com/cx9208/bbrplus/issues/27
-
+# UJX6N 编译的bbr plus 内核  6.7+ / 6.6 / 6.1 / 5.15 / 5.10 / 5.4 / 4.19 / 4.14 / 4.9
+# https://github.com/UJX6N/bbrplus-6.x_stable
 
 # BBR 速度评测
 # https://www.shopee6.com/web/web-tutorial/bbr-vs-plus-vs-bbr2.html

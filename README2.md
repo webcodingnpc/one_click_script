@@ -11,8 +11,8 @@ Thanks for support this project. Check on [patreon](https://www.patreon.com/linu
 
 * [Install Trojan/Trojan-go and V2ray/Xray shell script](#installation)
 * [Easy get SSL certificate for domains](#acme)
-* [Linux Kernel switcher, including all LTS kernel and latest kernel, enable BBR or BBR Plus to speed up network](/KERNEL.md)
-* [Install wireguard and Cloudflare WARP, unlock Netflix restriction and avoid Google reCAPTCHA](/KERNEL.md)
+* [Linux Kernel switcher, including all LTS kernel and latest kernel, enable BBR or BBR Plus to speed up network](/README.md)
+* [Install wireguard and Cloudflare WARP, unlock Netflix restriction and avoid Google reCAPTCHA](/README.md)
 * [Netflix available region testing shell script, support for testing through IPv6 and WARP Sock5 proxy](#netflix-check)
 * [PVE Proxmox VE and Synology DiskStation Manager NAS Toolkit](/dsm/readme.md)
 * [Install FRP shell script (expose local server behind a NAT or firewall to the Internet tool)](/dsm/readme.md)
@@ -112,7 +112,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_c
 6. Run script then choose 31 to install sofrware including Oh-my-zsh, zsh-autosuggestions, Micro editors. After finish installation, exit VPS and relogin SSH to use ZSH. 
 
 ### Install latest or LTS Linux kernel and enable BBR or BBR plus 
-1. To install latest or LTS Linux kernel. Run script then choose 1. And enter the sub menu to install Linux kernel and enable BBR+Cake. Check out more details for [LTS Linux kernel switcher script](/KERNEL.md)
+1. To install latest or LTS Linux kernel. Run script then choose 1. And enter the sub menu to install Linux kernel and enable BBR+Cake. Check out more details for [LTS Linux kernel switcher script](/README.md)
 
 
 
@@ -169,7 +169,7 @@ wget --no-check-certificate https://raw.githubusercontent.com/webcodingnpc/one_c
 ### Unlock Region restriction for Netflix or Disney+ or other video streaming site 
 ### Avoid showing Google CAPTCHA Human verification
 
-1. Run script ```./trojan_v2ray_install.sh ```. Choose 1 to enter sub menu to install linux kernel. Prefer to install linux kernel 5.10 LTS. [More Details](/KERNEL.md)
+1. Run script ```./trojan_v2ray_install.sh ```. Choose 1 to enter sub menu to install linux kernel. Prefer to install linux kernel 5.10 LTS. [More Details](/README.md)
 2. Run script ```./trojan_v2ray_install.sh ```. Choose 1 to enter sub menu. Then choose 2 to enable BBR and Cake. This will import VPS network speed. 
 3. After reboot, rerun script ```./trojan_v2ray_install.sh ```. Choose 1 to enter sub menu. Then choose 11 or 12 to Wireguard or cloudflare WARP linux client sock5 proxy. 
 4. After finish Wireguard installation, rerun script ```./trojan_v2ray_install.sh ```. Choose 11-17 to v2ray or xray。 During the installation, you can follow the instruction to unlock netflix region restriction and avoid showing Google CAPTCHA Human verification.
